@@ -6,14 +6,13 @@ This is a pretty minimal single beam erlang module
 Usage
 ------
 
-	make
+To build I use https://github.com/cthulhuology/beamer
 
-You can also make an rsa keypair with
+	beamer make
 
-	make keys
-
-if you have openssl installed.
-
+You can also make an rsa keypair with if you have openssl installed:
+	openssl genrsa -out private.pem 2048
+	openssl rsa -in private.pem -outform PEM -pubout -out public.pem
 
 You can sign some claims:
 
