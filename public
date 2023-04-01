@@ -1,0 +1,20 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%% -pa $HOME/.beamer -noshell -noinput
+%%
+%% Copyright 2023 David J Goehrig <dave@dloh.org>
+%% 
+
+load_beamer() ->
+	{ok, [[ Path ]]} = init:get_argument(home),
+	Home = lists:flatten(string:replace(Path,"\\","/",all)),
+	code:add_patha(Home ++ "/.beamer"),
+	code:load_file(beamer),
+	beamer:load(jwk).
+
+main([Id,Filename]) ->
+	load_beamer(),
+	io:format("~s~n",[ jwk:public(list_to_binary(Id),Filename) ]);
+
+main(_) ->
+	io:format("public kid public.pem~n").

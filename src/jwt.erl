@@ -32,7 +32,7 @@
 	depad/1, pad/1,
 	b64encode/1, b64decode/1, 
 	payload_sample/0,
-	sign/3, claims/2 
+	sign/2, sign/3, claims/2 
 	]).
 
 %% depad removes = trailing b64 encoded
@@ -126,7 +126,7 @@ hs256_sign(Payload,Secret) ->
 rs256_sign(Payload,PrivatePem) ->
 	[Data] = public_key:pem_decode(PrivatePem),
 	PrivateKey = public_key:pem_entry_decode(Data),
-	b64encode(public_key:sign(Payload,sha256,PrivateKey)).
+	b64encode(public_key:sign(Payload,sha256,PrivateKey)). 
 
 %%  Create JWTs
 sign(hs256, Claims,Secret) ->
@@ -140,3 +140,5 @@ sign(rs256, Claims,PrivatePem) ->
 sign(_, _, _) -> 
 	io:format("Unsupported algo~n").
 
+sign(Claims,PrivatePem) ->
+	sign(rs256,Claims,PrivatePem).
