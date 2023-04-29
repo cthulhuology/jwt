@@ -26,9 +26,11 @@
 -module(jwk).
 -author({ "David J Goehrig", "dave@dloh.org"}).
 -copyright(<<"© 2023 David J. Goehrig"/utf8>>).
--export([ keypair/1, public/2, private/2 ]).
+-export([ keypair/1, public/2, private/2, from/1 ]).
 
 -include_lib("public_key/include/public_key.hrl").
+
+-record(jwk, { kty, n, e, alg, kid, use, rsa }).
 
 public_encoding(Id,Key) ->
 	Modulus = list_to_binary(jwt:b64encode(binary:encode_unsigned(Key#'RSAPublicKey'.modulus))),
@@ -61,3 +63,16 @@ private(Id,Filename) ->
 	Key = public_key:pem_entry_decode(Data),
 	private_encoding(Id,Key).
 
+from(JWK) ->
+	case Algo = proplists:get_value(<<"alg">>, JWK) of
+	<<"RS256">> ->
+		Modulus = binary:decode_unsigned(proplists:get_value(<<"n">>, JWK)),
+		Exponent = binary:decode_unsigned(proplists:get_value(<<"e">>, JWK)),
+		Typ = proplists:get_value(<<"kty">>, JWK),
+		Id =  proplists:get_value(<<"kid">>, JWK),
+		Use =  proplists:get_value(<<"use">>, JWK),
+		RSA = #'RSAPublicKey'{ modulus = Modulus, publicExponent = Exponent },
+		#jwk{ alg = Algo, n = Modulus, e = Exponent, kty = Typ, kid = Id, use = Use, rsa = RSA };
+	_ ->
+		unsupported
+	end.
